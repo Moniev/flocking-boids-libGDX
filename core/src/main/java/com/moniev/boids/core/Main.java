@@ -30,7 +30,7 @@ public class Main implements ApplicationListener {
 	public void create () {
 		if (Gdx.graphics.isGL30Available()) Gdx.graphics.getGL30().glEnable(GL30.GL_ARRAY_BUFFER);
 		Gdx.gl.glLineWidth(1);
-		engine = new Engine(64, 16, 1, 60);
+		engine = new Engine(16, 16, 1, 60);
 		modelBatch = new ModelBatch();
 		
 		camera = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());

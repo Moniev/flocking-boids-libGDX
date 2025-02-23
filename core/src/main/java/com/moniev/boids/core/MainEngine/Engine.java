@@ -55,7 +55,7 @@ public class Engine {
         ModelInstance modelInstance = new ModelInstance(boidModel);
         
         Vector position = randomVector(-16, 16);
-        Boid boid = new Boid(position, boidModel, modelInstance);
+        Boid boid = new Boid(position, boidModel, modelInstance, 10f, 10f);
         Vector velocity = new Vector(10.5f, -10.5f, 15.5f); 
         boid.setVelocity(velocity, mFrameDt);
         tree.addBoid(boid);

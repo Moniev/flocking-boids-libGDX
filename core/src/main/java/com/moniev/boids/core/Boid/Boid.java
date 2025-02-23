@@ -10,13 +10,26 @@ public class Boid {
     public Vector position, lastPosition, acceleration; 
     public Model model;
     public ModelInstance modelInstance;
-    
-    public Boid(Vector position, Model model, ModelInstance modelInstance) {
+    private final float minVelocity, maxVelocity;
+
+    public Boid(Vector position, Model model, ModelInstance modelInstance, float minVelocity, float maxVelocity) {
         this.position = new Vector(position);
         this.lastPosition = new Vector(position);
         this.model = model;
         this.modelInstance = modelInstance;
         this.acceleration = new Vector(0, 0, 0);
+        this.minVelocity = minVelocity;
+        this.maxVelocity = maxVelocity;
+    }
+
+    private Vector limitVelocity(Vector velocity) {
+        if(velocity.length > maxVelocity) {
+            return velocity.normalize().multiply(maxVelocity);
+        } else if(velocity.length < minVelocity) {
+            return velocity.normalize().multiply(minVelocity);
+        } else {
+            return velocity;
+        }
     }
 
     public void accelerate(Vector a) {
@@ -42,6 +55,7 @@ public class Boid {
     }
 
     public void update(float dt) {        
+        setVelocity(limitVelocity(getVelocity(dt)), dt);
         Vector displacement = position.substract(lastPosition);        
         Vector newPosition = position.add(displacement).add(acceleration.multiply(dt * dt));
     

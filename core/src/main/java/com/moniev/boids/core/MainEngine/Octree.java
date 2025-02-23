@@ -20,10 +20,8 @@ public class Octree {
     public final float minX, minY, minZ;
     public final float maxX, maxY, maxZ;
     private final Engine engine;
-    public final float minSpeed = 4f;
-    public final float maxSpeed = 6f; 
-    private final float maxForce = 0.99f;
-    private final float minForce = 0.69f; 
+    private final float maxForce = 2.99f;
+    private final float minForce = 2.99f; 
     private final float distanceBetween = 16f;
     private final float alignmentForce = 1.2f;
     private final float cohesionForce = 1.2f;
@@ -49,23 +47,13 @@ public class Octree {
         this.engine = engine;
     }
 
-    private Vector limit(Vector vector) {
+    private Vector limitForce(Vector vector) {
         if(vector.length > maxForce) {
             return vector.normalize().multiply(maxForce);
         } else if(vector.length < minForce) {
             return vector.normalize().multiply(minForce);
         } else {
             return vector;
-        }
-    }
-
-    private Vector limitVelocity(Vector velocity) {
-        if(velocity.length > maxSpeed) {
-            return velocity.normalize().multiply(maxSpeed);
-        } else if(velocity.length < minSpeed) {
-            return velocity.normalize().multiply(minSpeed);
-        } else {
-            return velocity;
         }
     }
 
@@ -249,7 +237,7 @@ public class Octree {
             return cohesion.subdivide(node.boids.size());
         }
 
-        return cohesion;
+        return limitForce(cohesion);
     }
 
     public Vector calculateAlignment(Boid boid, OctreeNode node) {
@@ -267,7 +255,7 @@ public class Octree {
             return alignment.subdivide(node.boids.size());
         }
 
-        return alignment;
+        return limitForce(alignment);
     }
 
     public Vector calculateSeparation(Boid boid, OctreeNode node) {
@@ -283,7 +271,7 @@ public class Octree {
             return separation.subdivide(node.boids.size());
         }
 
-        return separation;
+        return limitForce(separation);
     }
 
     public void resolveOuterAdjustment(OctreeNode root) {
@@ -305,16 +293,9 @@ public class Octree {
                             separation.set(separation.add(calculateSeparation(inner, root)));
                         }
                         
-                        // int nodes = adjacentNodes.size();
-                        // if(nodes > 0) {
-                        //     alignment.set(alignment.subdivide(1));
-                        //     cohesion.set(cohesion.subdivide(nodes));
-                        //     separation.set(separation.subdivide(nodes));
-                        // }
-                        
-                        inner.accelerate(alignment.substract(inner.getVelocity(engine.subStepDt)).multiply(alignmentForce));
-                        inner.accelerate(cohesion.substract(inner.position).multiply(cohesionForce));
-                        inner.accelerate(separation.multiply(separationForce));
+                        inner.accelerate(limitForce(alignment.substract(inner.getVelocity(engine.subStepDt)).multiply(alignmentForce)));
+                        inner.accelerate(limitForce(cohesion.substract(inner.position).multiply(cohesionForce)));
+                        inner.accelerate(limitForce(separation.multiply(separationForce)));
                 }
             }
         }
