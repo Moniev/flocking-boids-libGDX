@@ -55,8 +55,8 @@ public class Engine {
         ModelInstance modelInstance = new ModelInstance(boidModel);
         
         Vector position = randomVector(-16, 16);
-        Boid boid = new Boid(position, boidModel, modelInstance, 10f, 10f);
-        Vector velocity = new Vector(10.5f, -10.5f, 15.5f); 
+        Boid boid = new Boid(position, boidModel, modelInstance, 60f, 60f);
+        Vector velocity = new Vector(1f, 1f, 1f); 
         boid.setVelocity(velocity, mFrameDt);
         tree.addBoid(boid);
     }
@@ -95,7 +95,7 @@ public class Engine {
         mTime += mFrameDt;
         for(int i = 0; i < subSteps; i++) {
             tree.resolveInnerAdjustment(tree.root);
-            tree.resolveOuterAdjustment(tree.root);
+            // tree.resolveOuterAdjustment(tree.root);
             tree.updateSpatialLookup(tree.root);
             tree.updateBoids(tree.root, subStepDt);
         }

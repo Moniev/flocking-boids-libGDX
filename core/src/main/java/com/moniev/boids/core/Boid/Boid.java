@@ -8,7 +8,7 @@ import com.moniev.boids.core.Vector.Vector;
 
 public class Boid {
     public Vector position, lastPosition, acceleration; 
-    public Model model;
+    public final Model model;
     public ModelInstance modelInstance;
     private final float minVelocity, maxVelocity;
 
@@ -56,6 +56,17 @@ public class Boid {
 
     public void update(float dt) {        
         setVelocity(limitVelocity(getVelocity(dt)), dt);
+
+        float speed = getVelocity(dt).length;
+        Vector dir = getVelocity(dt).subdivide(speed);
+        if (speed > maxVelocity) {
+            speed = maxVelocity;
+        } else if (speed < minVelocity) {
+            speed = minVelocity;
+        }
+
+        setVelocity(dir.multiply(speed), dt);
+
         Vector displacement = position.substract(lastPosition);        
         Vector newPosition = position.add(displacement).add(acceleration.multiply(dt * dt));
     

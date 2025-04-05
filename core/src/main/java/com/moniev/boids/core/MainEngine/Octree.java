@@ -12,7 +12,7 @@ import com.moniev.boids.core.Vector.Vector;
 public class Octree {
     public OctreeNode root;
 
-    public final int maxDepth = 3;
+    public final int maxDepth = 1;
     public int totalDepth = 1;
 
     public final float stepDt;
@@ -20,12 +20,12 @@ public class Octree {
     public final float minX, minY, minZ;
     public final float maxX, maxY, maxZ;
     private final Engine engine;
-    private final float maxForce = 2.99f;
-    private final float minForce = 2.99f; 
-    private final float distanceBetween = 16f;
-    private final float alignmentForce = 1.2f;
-    private final float cohesionForce = 1.2f;
-    private final float separationForce = 1.4f;
+    private final float maxForce = 20f;
+    private final float minForce = 10f; 
+    private final float distanceBetween = 1f;
+    private final float alignmentForce = 1.8f;
+    private final float cohesionForce = 1.8f;
+    private final float separationForce = 2.7f;
     public final float alignmentDistance = 16f;
     private final float cohesionDistance = 16f;
     private final float separationDistance = 16f;
@@ -51,7 +51,7 @@ public class Octree {
         if(vector.length > maxForce) {
             return vector.normalize().multiply(maxForce);
         } else if(vector.length < minForce) {
-            return vector.normalize().multiply(minForce);
+            return vector.normalize().multiply(maxForce);
         } else {
             return vector;
         }
@@ -227,7 +227,7 @@ public class Octree {
         for(Boid other : node.boids) {
             if(other != boid) {
                 float distance = boid.position.distance(other.position); 
-                if(distance > 0 && distance <= cohesionDistance) {
+                if(distance > 0 && distance <= distanceBetween) {
                     cohesion.set(cohesion.add(other.position));
                 }
             }
@@ -262,7 +262,7 @@ public class Octree {
         Vector separation = new Vector(0, 0, 0);
         for(Boid other : root.boids) {
             float distance = boid.position.distance(other.position);
-            if(distance > 0 && distance <= separationDistance) {
+            if(distance > 0 && distance <= distanceBetween) {
                 separation.set(separation.add(other.position.substract(boid.position)));
             }
         }
