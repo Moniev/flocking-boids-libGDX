@@ -21,14 +21,11 @@ public class Octree {
     public final float maxX, maxY, maxZ;
     private final Engine engine;
     private final float maxForce = 20f;
-    private final float minForce = 10f; 
-    private final float distanceBetween = 1f;
-    private final float alignmentForce = 1.8f;
-    private final float cohesionForce = 1.8f;
-    private final float separationForce = 2.7f;
-    public final float alignmentDistance = 16f;
-    private final float cohesionDistance = 16f;
-    private final float separationDistance = 16f;
+    private final float minForce = 20f; 
+    private final float distanceBetween = 9f;
+    private final float alignmentForce = 1.2f;
+    private final float cohesionForce = 1.1f;
+    private final float separationForce = 1.3f;
 
 
     public Octree(Vector center, int size, int threads, ModelBuilder modelBuilder, float stepDt, Engine engine) {
@@ -48,13 +45,19 @@ public class Octree {
     }
 
     private Vector limitForce(Vector vector) {
-        if(vector.length > maxForce) {
-            return vector.normalize().multiply(maxForce);
-        } else if(vector.length < minForce) {
-            return vector.normalize().multiply(maxForce);
-        } else {
-            return vector;
+        float length = vector.length();
+    
+        if (length == 0) {
+            return new Vector(0, 0, 0); 
         }
+    
+        if (length > maxForce) {
+            return vector.normalize().multiply(maxForce);
+        } else if (length < minForce) {
+            return vector.normalize().multiply(minForce);
+        }
+    
+        return vector;
     }
 
     private ArrayList<OctreeNode> getNearNodes(Vector position){
@@ -224,53 +227,62 @@ public class Octree {
 
     public Vector calculateCohesion(Boid boid, OctreeNode node) {
         Vector cohesion = new Vector(0, 0, 0);
-        for(Boid other : node.boids) {
-            if(other != boid) {
-                float distance = boid.position.distance(other.position); 
-                if(distance > 0 && distance <= distanceBetween) {
-                    cohesion.set(cohesion.add(other.position));
+        int neighborsCount = 0;
+    
+        for (Boid other : node.boids) {
+            if (other != boid) {
+                float distance = boid.position.distance(other.position);
+                if (distance > 0 && distance <= distanceBetween) {
+                    cohesion = cohesion.add(other.position);
+                    neighborsCount++;
                 }
             }
         }
-
-        if(!node.boids.isEmpty()) {
-            return cohesion.subdivide(node.boids.size());
+    
+        if (neighborsCount > 0) {
+            cohesion = cohesion.subdivide(neighborsCount).substract(boid.position);
+            return limitForce(cohesion);
         }
-
-        return limitForce(cohesion);
+    
+        return new Vector(0, 0, 0); 
     }
 
     public Vector calculateAlignment(Boid boid, OctreeNode node) {
         Vector alignment = new Vector(0, 0, 0);
-        for(Boid other : root.boids) {
-            if(other != boid) {
+        int neighborsCount = 0;
+    
+        for (Boid other : node.boids) {
+            if (other != boid) {
                 float distance = boid.position.distance(other.position);
-                if(distance > 0 && distance <= distanceBetween ) {
-                    alignment.set(alignment.add(boid.getVelocity(engine.subStepDt)));
+                if (distance > 0 && distance <= distanceBetween) {
+                    alignment = alignment.add(other.getVelocity(engine.subStepDt));
+                    neighborsCount++;
                 }
             }
         }
-
-        if(!node.boids.isEmpty()) {
-            return alignment.subdivide(node.boids.size());
+    
+        if (neighborsCount > 0) {
+            alignment = alignment.subdivide(neighborsCount).substract(boid.getVelocity(engine.subStepDt));
+            return limitForce(alignment);
         }
-
-        return limitForce(alignment);
+    
+        return new Vector(0, 0, 0); 
     }
 
     public Vector calculateSeparation(Boid boid, OctreeNode node) {
         Vector separation = new Vector(0, 0, 0);
-        for(Boid other : root.boids) {
-            float distance = boid.position.distance(other.position);
-            if(distance > 0 && distance <= distanceBetween) {
-                separation.set(separation.add(other.position.substract(boid.position)));
+    
+        for (Boid other : node.boids) {
+            if (other != boid) {
+                float distance = boid.position.distance(other.position);
+                if (distance > 0 && distance <= distanceBetween) {
+                    Vector diff = boid.position.substract(other.position);
+                    float scale = 1.0f / (distance * distance);
+                    separation = separation.add(diff.multiply(scale));
+                }
             }
         }
-
-        if(!node.boids.isEmpty()) {
-            return separation.subdivide(node.boids.size());
-        }
-
+    
         return limitForce(separation);
     }
 
