@@ -20,9 +20,9 @@ public class Main implements ApplicationListener {
 	public Engine engine;
 	private BitmapFont font;
 	public ModelBatch modelBatch;
-  private SpriteBatch spriteBatch;
-  private GlyphLayout glyphLayout;
-
+  	private SpriteBatch spriteBatch;
+	private GlyphLayout glyphLayout;
+	
 	private boolean renderTree, renderBoids;
 	private boolean showFPS, showThreads, showMemoryUsage, showParticleCount;
 	private boolean paused;
