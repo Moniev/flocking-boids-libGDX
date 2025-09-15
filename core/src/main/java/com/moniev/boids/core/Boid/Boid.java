@@ -11,7 +11,7 @@ public class Boid {
     public final Model model;
     public ModelInstance modelInstance;
     private final float minVelocity, maxVelocity;
-
+    
     public Boid(Vector position, Model model, ModelInstance modelInstance, float minVelocity, float maxVelocity) {
         this.position = new Vector(position);
         this.lastPosition = new Vector(position);
@@ -33,7 +33,7 @@ public class Boid {
     }
 
     public void accelerate(Vector a) {
-        acceleration.set(acceleration.add(a)); 
+        acceleration.set(acceleration.add(a));
     }
 
     public void setVelocity(Vector v, float dt) {

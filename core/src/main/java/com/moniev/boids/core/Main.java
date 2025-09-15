@@ -1,16 +1,17 @@
 package com.moniev.boids.core;
 
-import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.GL30;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
 import com.moniev.boids.core.MainEngine.Engine;
+import com.badlogic.gdx.ApplicationListener;
 
 
 public class Main implements ApplicationListener {
@@ -19,7 +20,8 @@ public class Main implements ApplicationListener {
 	public Engine engine;
 	private BitmapFont font;
 	public ModelBatch modelBatch;
-    private SpriteBatch spriteBatch;
+  private SpriteBatch spriteBatch;
+  private GlyphLayout glyphLayout;
 
 	private boolean renderTree, renderBoids;
 	private boolean showFPS, showThreads, showMemoryUsage, showParticleCount;
@@ -31,8 +33,7 @@ public class Main implements ApplicationListener {
 		if (Gdx.graphics.isGL30Available()) Gdx.graphics.getGL30().glEnable(GL30.GL_ARRAY_BUFFER);
 		Gdx.gl.glLineWidth(1);
 		engine = new Engine(2000, 256, 1, 60);
-		modelBatch = new ModelBatch();
-		
+		modelBatch = new ModelBatch();	
 		camera = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		camera.position.set(0, 8, 4);
 		camera.lookAt(0f, 0f, 0f); 
@@ -40,8 +41,10 @@ public class Main implements ApplicationListener {
 		camera.far = 50000f;
 		camera.update();
 
-		Gdx.input.setInputProcessor(new Controller(new CameraInputController(camera)));
+    CameraInputController cameraController = new CameraInputController(camera);
+    Gdx.input.setInputProcessor(new Controller(cameraController));
 
+    glyphLayout = new GlyphLayout();
 		font = new BitmapFont();
 		spriteBatch = new SpriteBatch();
 		renderBoids = true;
@@ -92,7 +95,11 @@ public class Main implements ApplicationListener {
 		if(showParticleCount) font.draw(spriteBatch, "BOIDS: " + engine.tree.countBoids(engine.tree.root), 10, Gdx.graphics.getHeight() - 25);
 		if(showThreads) font.draw(spriteBatch, "THREADS: " + getThreads(), 10, Gdx.graphics.getHeight() - 40);
 		if(showFPS) font.draw(spriteBatch, "FPS: " + Gdx.graphics.getFramesPerSecond(), 10, Gdx.graphics.getHeight() - 55);
-		if(paused) font.draw(spriteBatch, "PAUSED", Gdx.graphics.getWidth() / 2 - font.getBounds("PAUSED").width / 2, Gdx.graphics.getHeight() / 2);
+		if(paused) {
+      glyphLayout.setText(font, "PAUSED");
+      float textWidth = glyphLayout.width;
+      font.draw(spriteBatch, "PAUSED", Gdx.graphics.getWidth() / 2 - textWidth / 2, Gdx.graphics.getHeight() / 2);
+    }
 		spriteBatch.end();
 		loop++;
 	}
@@ -113,63 +120,66 @@ public class Main implements ApplicationListener {
 	}
 
 	private class Controller implements InputProcessor{
-        private final CameraInputController cameraController;
+    private final CameraInputController cameraController;
 
-        public Controller(CameraInputController cameraController) {
-            this.cameraController = cameraController;
-        }
-
-		@Override
-        public boolean keyDown(int keycode) {
-            switch (keycode) {
-				case Input.Keys.P: 
-					paused = !paused;
-					break;
-				case Input.Keys.T: 
-					renderTree = !renderTree; 
-					break;
-				case Input.Keys.ESCAPE: 
-					Gdx.app.exit();
-					break;
-			}
-            return false;
-        }
-
-        @Override
-        public boolean keyUp(int keycode) {
-            return cameraController.keyUp(keycode);
-        }
-
-        @Override
-        public boolean keyTyped(char character) {
-            return cameraController.keyTyped(character);
-        }
-
-        @Override
-        public boolean touchDown(int screenX, int screenY, int pointer, int button) {		
-			return cameraController.touchDown(screenX, screenY, pointer, button);
-        }
-
-        @Override
-        public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-            return cameraController.touchUp(screenX, screenY, pointer, button);
-        }
-
-        @Override
-        public boolean touchDragged(int screenX, int screenY, int pointer) {
-            return cameraController.touchDragged(screenX, screenY, pointer);
-        }
-
-        @Override
-        public boolean mouseMoved(int screenX, int screenY) {
-            return cameraController.mouseMoved(screenX, screenY);
-        }
-
-        @Override
-        public boolean scrolled(int amount) {
-            return cameraController.scrolled(amount);
-        }
+    public Controller(CameraInputController cameraController) {
+      this.cameraController = cameraController;
     }
 
+		@Override
+    public boolean keyDown(int keycode) {
+    switch (keycode) {
+      case Input.Keys.P: 
+        paused = !paused;
+        break;
+      case Input.Keys.T: 
+        renderTree = !renderTree; 
+        break;
+      case Input.Keys.ESCAPE: 
+        Gdx.app.exit();
+        break;
+		}
+      return cameraController.keyDown(keycode);
+    }
 
+    @Override
+    public boolean keyUp(int keycode) {
+      return cameraController.keyUp(keycode);
+    }
+
+    @Override
+    public boolean keyTyped(char character) {
+      return cameraController.keyTyped(character);
+    }
+
+    @Override
+    public boolean touchDown(int screenX, int screenY, int pointer, int button) {		
+      return cameraController.touchDown(screenX, screenY, pointer, button);
+    }
+
+    @Override
+    public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+        return cameraController.touchUp(screenX, screenY, pointer, button);
+    }
+
+    @Override
+    public boolean touchDragged(int screenX, int screenY, int pointer) {
+        return cameraController.touchDragged(screenX, screenY, pointer);
+    }
+
+    @Override
+    public boolean mouseMoved(int screenX, int screenY) {
+      return cameraController.mouseMoved(screenX, screenY);
+    }
+  
+    @Override
+    public boolean scrolled(float amountX, float amountY) {
+      return cameraController.scrolled(amountX, amountY);
+    }
+
+    @Override
+    public boolean touchCancelled(int screenX, int screenY, int pointer, int button) {
+      return false;
+    } 
+  }
 }
