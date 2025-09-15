@@ -95,10 +95,10 @@ public class Main implements ApplicationListener {
 		if(showThreads) font.draw(spriteBatch, "THREADS: " + getThreads(), 10, Gdx.graphics.getHeight() - 40);
 		if(showFPS) font.draw(spriteBatch, "FPS: " + Gdx.graphics.getFramesPerSecond(), 10, Gdx.graphics.getHeight() - 55);
 		if(paused) {
-      glyphLayout.setText(font, "PAUSED");
-      float textWidth = glyphLayout.width;
-      font.draw(spriteBatch, "PAUSED", Gdx.graphics.getWidth() / 2 - textWidth / 2, Gdx.graphics.getHeight() / 2);
-    }
+	      glyphLayout.setText(font, "PAUSED");
+	      float textWidth = glyphLayout.width;
+	      font.draw(spriteBatch, "PAUSED", Gdx.graphics.getWidth() / 2 - textWidth / 2, Gdx.graphics.getHeight() / 2);
+	    }
 		spriteBatch.end();
 		loop++;
 	}
