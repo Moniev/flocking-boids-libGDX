@@ -1,5 +1,6 @@
 package com.moniev.boids.core.MainEngine;
 
+import java.util.Random;
 import java.util.ArrayList;
 import java.util.concurrent.ThreadLocalRandom;
 import com.badlogic.gdx.math.Quaternion;
@@ -49,6 +50,25 @@ public class Engine {
     this.tree = new Octree(center, size, boidsLimit, 16, modelBuilder, mFrameDt, this);
   }
 
+  public void initializeBoids(int count) {
+    Random random = new Random();
+    float startSpeed = 45.0f;
+
+    for (int i = 0; i < count; i++) {
+      ModelInstance modelInstance = new ModelInstance(sharedBoidModel);
+      Vector position = randomVector(-size / 2f, size / 2f);
+
+      Vector velocity = new Vector(
+          random.nextFloat() * 2 - 1,
+          random.nextFloat() * 2 - 1,
+          random.nextFloat() * 2 - 1);
+      velocity.normalize().multiply(startSpeed);
+
+      Boid boid = new Boid(position, velocity, subStepDt, sharedBoidModel, modelInstance, 30f, 60f);
+      boids.add(boid);
+    }
+  }
+
   private Model createWireframeCube(ModelBuilder builder) {
     float size = 0.5f;
 
@@ -56,7 +76,6 @@ public class Engine {
     MeshPartBuilder meshBuilder = builder.part("lines", GL20.GL_LINES,
         Usage.Position, new Material());
     meshBuilder.setColor(Color.GREEN);
-
     meshBuilder.box(size * 2, size * 2, size * 2);
 
     return builder.end();
@@ -81,9 +100,8 @@ public class Engine {
     ModelInstance modelInstance = new ModelInstance(sharedBoidModel);
 
     Vector position = randomVector(-16, 16);
-    Boid boid = new Boid(position, sharedBoidModel, modelInstance, 60f, 60f);
-    Vector velocity = new Vector(1f, 1f, 1f);
-    boid.setVelocity(velocity, mFrameDt);
+    Vector velocity = new Vector(30, 0, 30);
+    Boid boid = new Boid(position, velocity, subStepDt, sharedBoidModel, modelInstance, 30f, 60f);
     boids.add(boid);
   }
 

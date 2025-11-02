@@ -4,13 +4,11 @@ import com.badlogic.gdx.math.Vector3;
 
 public class Vector {
   public float x, y, z;
-  public float length;
 
   public Vector(float x, float y, float z) {
     this.x = x;
     this.y = y;
     this.z = z;
-    this.length = length();
   }
 
   public Vector(float[] vector) {
@@ -102,7 +100,7 @@ public class Vector {
   }
 
   public Vector normalize() {
-    return subdivide(length);
+    return subdivide(length());
   }
 
   public String toString() {
@@ -112,5 +110,4 @@ public class Vector {
   public void print() {
     System.out.println(this.toString());
   }
-
 }

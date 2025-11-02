@@ -31,13 +31,13 @@ public class Main implements ApplicationListener {
     if (Gdx.graphics.isGL30Available())
       Gdx.graphics.getGL30().glEnable(GL30.GL_ARRAY_BUFFER);
     Gdx.gl.glLineWidth(1);
-    engine = new Engine(2000, 64, 256, 1, 60);
+    engine = new Engine(200, 64, 256, 1, 60);
     modelBatch = new ModelBatch();
     camera = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
     camera.position.set(0, 8, 4);
     camera.lookAt(0f, 0f, 0f);
     camera.near = 1f;
-    camera.far = 50000f;
+    camera.far = 500000f;
     camera.update();
 
     CameraInputController cameraController = new CameraInputController(camera);
@@ -53,9 +53,7 @@ public class Main implements ApplicationListener {
     showMemoryUsage = true;
     showParticleCount = true;
     paused = false;
-    for (int i = 0; i < engine.boidsNumber; i++) {
-      engine.addBoid(i);
-    }
+    engine.initializeBoids(engine.boidsNumber);
   }
 
   private int getThreads() {
@@ -80,6 +78,8 @@ public class Main implements ApplicationListener {
     if (!paused) {
       engine.update();
     }
+
+    modelBatch.begin(this.camera);
 
     if (renderTree)
       engine.renderTree(modelBatch);
