@@ -21,9 +21,9 @@ public class Octree {
   private final float maxForce = 20f;
   private final float minForce = 1f;
   private final float distanceBetween = 50f;
-  private final float alignmentForce = 0.1f;
-  private final float cohesionForce = 0.1f;
-  private final float separationForce = 0.3f;
+  private final float alignmentForce = 1f;
+  private final float cohesionForce = 2f;
+  private final float separationForce = 1f;
 
   public Octree(Vector center, int size, int boidsLimit, int threads, ModelBuilder modelBuilder, float stepDt,
       Engine engine) {

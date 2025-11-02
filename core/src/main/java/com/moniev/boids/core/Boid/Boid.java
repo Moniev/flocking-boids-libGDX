@@ -44,6 +44,20 @@ public class Boid {
   }
 
   public void update(float dt) {
+    Vector velocity = getVelocity(dt);
+    float speed = velocity.length();
+
+    Vector limitedVelocity = velocity;
+    if (speed > maxVelocity) {
+      limitedVelocity = velocity.subdivide(speed).multiply(maxVelocity);
+    } else if (speed < minVelocity) {
+      if (speed != 0) {
+        limitedVelocity = velocity.subdivide(speed).multiply(minVelocity);
+      }
+    }
+
+    setVelocity(limitedVelocity, dt);
+
     Vector displacement = position.substract(lastPosition);
     Vector newPosition = position.add(displacement).add(acceleration.multiply(dt * dt));
 
