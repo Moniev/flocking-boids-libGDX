@@ -15,15 +15,23 @@ public class Octree {
 
   public final float stepDt;
   public final Vector center;
+
   public final float minX, minY, minZ;
   public final float maxX, maxY, maxZ;
+
   public final Engine engine;
+
   private final float maxForce = 20f;
   private final float minForce = 1f;
+
   private final float distanceBetween = 50f;
+
   private final float alignmentForce = 1f;
   private final float cohesionForce = 2f;
   private final float separationForce = 1f;
+
+  private final float turnForce = 50f;
+  private final float turnDistance = 120f;
 
   public Octree(Vector center, int size, int boidsLimit, int threads, ModelBuilder modelBuilder, float stepDt,
       Engine engine) {
@@ -114,6 +122,8 @@ public class Octree {
         }
       }
     }
+    Vector avoidance = calculateBoundaryAvoidance(boid);
+    boid.accelerate(avoidance);
 
     if (neighbors.isEmpty()) {
       boid.acceleration.set(0, 0, 0);
@@ -138,6 +148,30 @@ public class Octree {
     boid.accelerate(limitForce(alignmentVec.multiply(alignmentForce)));
     boid.accelerate(limitForce(cohesionVec.multiply(cohesionForce)));
     boid.accelerate(limitForce(separationVec.multiply(separationForce)));
+  }
+
+  private Vector calculateBoundaryAvoidance(Boid boid) {
+    Vector force = new Vector(0, 0, 0);
+
+    if (boid.position.x < minX + turnDistance) {
+      force.x = turnForce;
+    } else if (boid.position.x > maxX - turnDistance) {
+      force.x = -turnForce;
+    }
+
+    if (boid.position.y < minY + turnDistance) {
+      force.y = turnForce;
+    } else if (boid.position.y > maxY - turnDistance) {
+      force.y = -turnForce;
+    }
+
+    if (boid.position.z < minZ + turnDistance) {
+      force.z = turnForce;
+    } else if (boid.position.z > maxZ - turnDistance) {
+      force.z = -turnForce;
+    }
+
+    return force;
   }
 
   public ArrayList<Boid> getBorderBoids(ArrayList<OctreeNode> adjacentNodes) {
