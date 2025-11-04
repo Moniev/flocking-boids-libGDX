@@ -1,5 +1,6 @@
 package com.moniev.boids.core.Boid;
 
+import java.util.ArrayList;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.moniev.boids.core.Vector.Vector;
@@ -9,6 +10,23 @@ public class Boid {
   public final Model model;
   public ModelInstance modelInstance;
   private final float minVelocity, maxVelocity;
+
+  private static final ArrayList<Vector> directions = new ArrayList<>();
+  private static final int directionsLimit = 120;
+
+  static {
+    final float angle = 2.39996322972865332f;
+    for (int i = 0; i < directionsLimit; i++) {
+      float y = 1.0f - ((i + 0.5f) / directionsLimit) * 2.0f;
+      float radiusAtY = (float) Math.sqrt(1.0f - y * y);
+      float theta = angle * i;
+
+      float x = (float) Math.cos(theta) * radiusAtY;
+      float z = (float) Math.sin(theta) * radiusAtY;
+
+      directions.add(new Vector(x, y, z));
+    }
+  }
 
   public Boid(Vector position, Vector initialVelocity, float dt, Model model, ModelInstance modelInstance,
       float minVelocity, float maxVelocity) {
@@ -65,5 +83,29 @@ public class Boid {
     position.set(newPosition);
 
     acceleration.set(0);
+  }
+
+  public ArrayList<Vector> getFieldOfView(float axis, float dt) {
+    ArrayList<Vector> forwardDirections = new ArrayList<>();
+    Vector velocity = getVelocity(dt);
+
+    if (velocity.length() == 0) {
+      return forwardDirections;
+    }
+
+    Vector forward = velocity.normalize();
+
+    float maxAngle = (float) Math.toRadians(axis / 2f);
+    float minDotProduct = (float) Math.cos(maxAngle);
+
+    for (Vector direction : directions) {
+      float dotProduct = forward.dotProduct(direction);
+
+      if (dotProduct > minDotProduct) {
+        forwardDirections.add(direction);
+      }
+    }
+
+    return forwardDirections;
   }
 }

@@ -26,9 +26,9 @@ public class Octree {
 
   private final float distanceBetween = 50f;
 
-  private final float alignmentForce = 1f;
-  private final float cohesionForce = 2f;
-  private final float separationForce = 1f;
+  private final float alignmentForce = 2f;
+  private final float cohesionForce = 4f;
+  private final float separationForce = 1.3f;
 
   private final float turnForce = 50f;
   private final float turnDistance = 120f;
@@ -48,7 +48,6 @@ public class Octree {
     this.stepDt = stepDt;
 
     this.root = new OctreeNode(center, size, boidsLimit, maxDepth, null, this);
-
   }
 
   private Vector limitForce(Vector vector) {
@@ -122,11 +121,11 @@ public class Octree {
         }
       }
     }
+
     Vector avoidance = calculateBoundaryAvoidance(boid);
     boid.accelerate(avoidance);
 
     if (neighbors.isEmpty()) {
-      boid.acceleration.set(0, 0, 0);
       return;
     }
 
