@@ -21,14 +21,14 @@ public class Octree {
 
   public final Engine engine;
 
-  private final float maxForce = 20f;
+  private final float maxForce = 12f;
   private final float minForce = 1f;
 
-  private final float distanceBetween = 50f;
+  private final float distanceBetween = 100f;
 
-  private final float alignmentForce = 2f;
-  private final float cohesionForce = 4f;
-  private final float separationForce = 1.3f;
+  private final float alignmentForce = 0.5f;
+  private final float cohesionForce = 2f;
+  private final float separationForce = 0.7f;
 
   private final float turnForce = 50f;
   private final float turnDistance = 120f;

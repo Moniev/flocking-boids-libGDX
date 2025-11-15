@@ -6,13 +6,15 @@ import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.moniev.boids.core.Vector.Vector;
 
 public class Boid {
-  public Vector position, lastPosition, acceleration;
+  public Vector position, lastPosition, acceleration, currentAcceleration;
   public final Model model;
   public ModelInstance modelInstance;
   private final float minVelocity, maxVelocity;
 
   private static final ArrayList<Vector> directions = new ArrayList<>();
   private static final int directionsLimit = 120;
+
+  private final float maxJerk;
 
   static {
     final float angle = 2.39996322972865332f;
@@ -29,14 +31,20 @@ public class Boid {
   }
 
   public Boid(Vector position, Vector initialVelocity, float dt, Model model, ModelInstance modelInstance,
-      float minVelocity, float maxVelocity) {
+      float minVelocity, float maxVelocity, float maxJerk) {
     this.position = new Vector(position);
     this.lastPosition = position.substract(initialVelocity.multiply(dt));
     this.model = model;
     this.modelInstance = modelInstance;
     this.acceleration = new Vector(0, 0, 0);
+    this.currentAcceleration = new Vector(acceleration);
     this.minVelocity = minVelocity;
     this.maxVelocity = maxVelocity;
+    this.maxJerk = maxJerk;
+  }
+
+  public static ArrayList<Vector> getDirections() {
+    return Boid.directions;
   }
 
   public void accelerate(Vector a) {
@@ -65,6 +73,14 @@ public class Boid {
     Vector velocity = getVelocity(dt);
     float speed = velocity.length();
 
+    Vector steer = acceleration.substract(currentAcceleration);
+    float steerMagnitude = steer.length();
+    if (steerMagnitude > this.maxJerk) {
+      steer = steer.normalize().multiply(maxJerk);
+    }
+
+    currentAcceleration = currentAcceleration.add(steer);
+
     Vector limitedVelocity = velocity;
     if (speed > maxVelocity) {
       limitedVelocity = velocity.subdivide(speed).multiply(maxVelocity);
@@ -77,7 +93,7 @@ public class Boid {
     setVelocity(limitedVelocity, dt);
 
     Vector displacement = position.substract(lastPosition);
-    Vector newPosition = position.add(displacement).add(acceleration.multiply(dt * dt));
+    Vector newPosition = position.add(displacement).add(currentAcceleration.multiply(dt * dt));
 
     lastPosition.set(position);
     position.set(newPosition);

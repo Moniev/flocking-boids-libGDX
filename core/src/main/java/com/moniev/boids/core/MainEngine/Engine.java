@@ -64,7 +64,8 @@ public class Engine {
           random.nextFloat() * 2 - 1);
       velocity.normalize().multiply(startSpeed);
 
-      Boid boid = new Boid(position, velocity, subStepDt, sharedBoidModel, modelInstance, 20f, 30f);
+      Boid boid = new Boid(position, velocity, subStepDt, sharedBoidModel, modelInstance, 20f, 30f,
+          30f);
       boids.add(boid);
     }
   }
@@ -101,7 +102,8 @@ public class Engine {
 
     Vector position = randomVector(-16, 16);
     Vector velocity = new Vector(30, 0, 30);
-    Boid boid = new Boid(position, velocity, subStepDt, sharedBoidModel, modelInstance, 30f, 60f);
+    Boid boid = new Boid(position, velocity, subStepDt, sharedBoidModel, modelInstance, 30f, 60f,
+        60f);
     boids.add(boid);
   }
 

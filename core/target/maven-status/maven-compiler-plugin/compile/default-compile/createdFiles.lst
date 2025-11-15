@@ -1,6 +1,7 @@
 com/moniev/boids/core/Vector/Vector.class
 com/moniev/boids/core/Main.class
 com/moniev/boids/core/MainEngine/Octree.class
+com/moniev/boids/core/Ray/Ray.class
 com/moniev/boids/core/Boid/Boid.class
 com/moniev/boids/core/Main$Controller.class
 com/moniev/boids/core/MainEngine/Engine.class
