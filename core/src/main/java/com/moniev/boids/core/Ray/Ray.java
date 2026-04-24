@@ -6,7 +6,7 @@ import com.moniev.boids.core.Boid.Boid;
 import com.moniev.boids.core.Obstacle.Obstacle;
 import com.moniev.boids.core.Vector.Vector;
 
-class Ray {
+public class Ray {
   public Vector origin;
   public Vector direction;
 
@@ -33,4 +33,17 @@ class Ray {
   public boolean intersects(Obstacle obstacle) {
     return false;
   }
+
+  public float getCollisionDistance(Obstacle obstacle) {
+    Vector oc = origin.substract(obstacle.position);
+    float b = 2.0f * oc.dotProduct(direction);
+    float c = oc.dotProduct(oc) - obstacle.radius * obstacle.radius;
+    float discriminant = b * b - 4 * c;
+
+    if (discriminant < 0) return -1;
+
+    float t = (-b - (float)Math.sqrt(discriminant)) / 2.0f;
+    return (t > 0) ? t : -1;
+  }
 }
+

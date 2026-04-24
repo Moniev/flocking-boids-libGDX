@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.moniev.boids.core.Vector.Vector;
+import com.moniev.boids.core.Obstacle.Obstacle;
+import com.moniev.boids.core.Ray.Ray;
 
 public class Boid {
   public Vector position, lastPosition, acceleration, currentAcceleration;
@@ -123,5 +125,88 @@ public class Boid {
     }
 
     return forwardDirections;
+  }
+
+  public Vector avoidObstacles(ArrayList<Obstacle> obstacles, float lookAheadDistance) {
+    Vector velocity = getVelocity(0.016f);
+    if (velocity.length() == 0) return new Vector(0,0,0);
+
+    Vector forward = velocity.normalize();
+    float threshold = 0.58f;
+
+    Ray forwardRay = new Ray(this.position, forward);
+
+    boolean collisionImminent = false;
+    for (Obstacle obs : obstacles) {
+        float dist = forwardRay.getCollisionDistance(obs);
+        if (dist != -1 && dist < lookAheadDistance) {
+            collisionImminent = true;
+            break;
+        }
+    }
+
+    if (!collisionImminent) return new Vector(0,0,0);
+
+    for (Vector dir : directions) {
+        if (forward.dotProduct(dir) < threshold) continue;
+
+        Ray ray = new Ray(this.position, dir);
+        boolean blocked = false;
+
+        for (Obstacle obs : obstacles) {
+            float dist = ray.getCollisionDistance(obs);
+            if (dist != -1 && dist < lookAheadDistance) {
+                blocked = true;
+                break;
+            }
+        }
+
+        if (!blocked) {
+            return dir.multiply(maxVelocity).substract(velocity);
+        }
+    }
+
+    return new Vector(0,0,0);
+  }
+
+public Vector avoidObstacles(ArrayList<Obstacle> obstacles, float lookAheadDistance, float dt) {
+    Vector velocity = getVelocity(dt);
+    if (velocity.length() == 0) return new Vector(0,0,0);
+
+    Vector forward = velocity.normalize();
+    float threshold = 0.0f;
+
+    Ray forwardRay = new Ray(this.position, forward);
+    boolean collisionImminent = false;
+    for (Obstacle obs : obstacles) {
+        float dist = forwardRay.getCollisionDistance(obs);
+        if (dist != -1 && dist < lookAheadDistance) {
+            collisionImminent = true;
+            break;
+        }
+    }
+
+    if (!collisionImminent) return new Vector(0,0,0);
+
+    for (Vector dir : directions) {
+        if (forward.dotProduct(dir) < threshold) continue;
+
+        Ray ray = new Ray(this.position, dir);
+        boolean blocked = false;
+
+        for (Obstacle obs : obstacles) {
+            float dist = ray.getCollisionDistance(obs);
+            if (dist != -1 && dist < lookAheadDistance) {
+                blocked = true;
+                break;
+            }
+        }
+
+        if (!blocked) {
+          return dir.multiply(maxVelocity).substract(velocity);
+        }
+    }
+
+    return new Vector(0,0,0);
   }
 }

@@ -21,7 +21,9 @@ public class Main implements ApplicationListener {
   public ModelBatch modelBatch;
   private SpriteBatch spriteBatch;
   private GlyphLayout glyphLayout;
+  private int obstaclesNumber;
 
+  private boolean obstacles;
   private boolean renderTree, renderBoids;
   private boolean showFPS, showThreads, showMemoryUsage, showParticleCount;
   private boolean paused;
@@ -39,6 +41,7 @@ public class Main implements ApplicationListener {
     camera.near = 1f;
     camera.far = 500000f;
     camera.update();
+    obstaclesNumber = 10;
 
     CameraInputController cameraController = new CameraInputController(camera);
     Gdx.input.setInputProcessor(new Controller(cameraController));
@@ -53,7 +56,11 @@ public class Main implements ApplicationListener {
     showMemoryUsage = true;
     showParticleCount = true;
     paused = false;
+    obstacles = true;
     engine.initializeBoids(engine.boidsNumber);
+    if (obstacles) {
+      engine.initializeObstacles(obstaclesNumber);
+    }
   }
 
   private int getThreads() {
@@ -81,6 +88,7 @@ public class Main implements ApplicationListener {
 
     modelBatch.begin(this.camera);
 
+    engine.renderObstacles(modelBatch);
     if (renderTree)
       engine.renderTree(modelBatch);
     if (renderBoids)

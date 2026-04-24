@@ -15,6 +15,7 @@ import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.moniev.boids.core.Boid.Boid;
 import com.moniev.boids.core.Vector.Vector;
 import com.badlogic.gdx.math.Vector3;
+import com.moniev.boids.core.Obstacle.Obstacle;
 import com.badlogic.gdx.graphics.g3d.utils.MeshPartBuilder;
 import com.badlogic.gdx.graphics.GL20;
 
@@ -29,6 +30,8 @@ public class Engine {
   public float mFrameDt;
   public Octree tree;
   public ArrayList<Boid> boids;
+  private final ArrayList<Obstacle> obstacles = new ArrayList<>();
+  private final Model sharedObstacleModel;
   private final Model sharedBoidModel;
   private final Model sharedNodeWireframeModel;
 
@@ -45,9 +48,34 @@ public class Engine {
     this.sharedBoidModel = modelBuilder.createCone(
         1f, 3f, 1f, 3,
         new Material(ColorAttribute.createDiffuse(1, 1, 1, 1)),
-        Usage.Position | Usage.Normal);
+        Usage.Position | Usage.Normal
+    );
     this.sharedNodeWireframeModel = createWireframeCube(modelBuilder);
     this.tree = new Octree(center, size, boidsLimit, 16, modelBuilder, mFrameDt, this);
+    this.sharedObstacleModel = modelBuilder.createSphere(
+        1f, 1f, 1f, 24, 24,
+        new Material(ColorAttribute.createDiffuse(Color.RED)),
+        Usage.Position | Usage.Normal
+    );
+  }
+
+  public void initializeObstacles(int count) {
+    for (int i = 0; i < count; i++) {
+      Vector pos = randomVector(-size / 1.5f, size / 1.5f);
+      float radius = randomFloat(20f, 60f);
+
+      obstacles.add(new Obstacle(pos, radius, sharedObstacleModel));
+    }
+  }
+
+  public ArrayList<Obstacle> getObstacles() {
+    return obstacles;
+  }
+
+  public void renderObstacles(ModelBatch modelBatch) {
+    for (Obstacle obs : obstacles) {
+        modelBatch.render(obs.modelInstance);
+    }
   }
 
   public void initializeBoids(int count) {

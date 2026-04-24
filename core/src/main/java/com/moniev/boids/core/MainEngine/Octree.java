@@ -125,6 +125,11 @@ public class Octree {
     Vector avoidance = calculateBoundaryAvoidance(boid);
     boid.accelerate(avoidance);
 
+    Vector obstacleAvoidance = boid.avoidObstacles(engine.getObstacles(), turnDistance, stepDt);
+    if (obstacleAvoidance.length() > 0) {
+        boid.accelerate(limitForce(obstacleAvoidance.multiply(turnForce * 2)));
+    }
+
     if (neighbors.isEmpty()) {
       return;
     }
